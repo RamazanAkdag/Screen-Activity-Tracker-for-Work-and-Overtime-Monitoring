@@ -17,10 +17,10 @@ This Java-based application is designed to monitor and log screen activity and i
 ![Main Interface](/screenshots/ui.png)
 
 ### Work Hour Settings
-![Work Hour Settings](path/to/work_hour_settings_image.png)
+![Work Hour Settings](screenshots/WorkHourSettings.png)
 
 ### Daily Activity Log
-![Daily Activity Log](path/to/daily_activity_log_image.png)
+![Daily Activity Log](screenshots/workLogs.png)
 
 ## Getting Started
 
