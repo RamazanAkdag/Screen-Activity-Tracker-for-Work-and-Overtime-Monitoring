@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Screen Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: #0056b3;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        form {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        input[type="time"] {
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button[type="submit"], button[type="button"] {
+            background-color: #0056b3;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button[type="submit"]:hover, button[type="button"]:hover {
+            background-color: #004494;
+        }
+
+        p {
+            margin: 10px 0;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: #fff;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        span {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<h1>Screen Tracker</h1>
+
+<h2>Current Work Hours</h2>
+<form th:action="@{/update-workhour}" method="post">
+    <label for="startTime">Start Time:</label>
+    <input type="time" id="startTime" name="startTime" th:value="${workHour.startTime}" required><br>
+
+    <label for="endTime">End Time:</label>
+    <input type="time" id="endTime" name="endTime" th:value="${workHour.endTime}" required><br>
+
+    <button type="submit">Update Work Hours</button>
+</form>
+
+<h2>Screen Listener Control</h2>
+<div>
+    <p>Status: <span th:text="${listenerStatus}">Stopped</span></p>
+    <button type="button" th:if="${listenerStatus == 'Stopped'}" th:onclick="'window.location.href=\'/start-listener\''">Start Listener</button>
+    <button type="button" th:if="${listenerStatus == 'Running'}" th:onclick="'window.location.href=\'/stop-listener\''">Stop Listener</button>
+
+</div>
+
+<h2>Bugünün Çalışma Saati Kaydı</h2>
+<div th:if="${todayWorkHourRecord != null}">
+    <p>Başlama Saati: <span th:text="${#temporals.format(todayWorkHourRecord.startTime, 'HH:mm:ss')}"></span></p>
+    <p>Bitiş Saati: <span th:text="${#temporals.format(todayWorkHourRecord.endTime, 'HH:mm:ss')}"></span></p>
+    <p>Pasif Süre: <span th:text="${@screenListenerManager.formatDuration(todayWorkHourRecord.passiveDuration)}"></span></p>
+    <p>Aktif Süre: <span th:text="${@screenListenerManager.formatDuration(todayWorkHourRecord.activeDuration)}"></span></p>
+</div>
+<div th:if="${todayWorkHourRecord == null}">
+    <p>Bugün için bir çalışma saati kaydı bulunamadı.</p>
+</div>
+
+<h2>Bugünün Mesai Saati Kaydı</h2>
+<div th:if="${todayOvertimeRecord != null}">
+    <p>Başlama Saati: <span th:text="${#temporals.format(todayOvertimeRecord.startTime, 'HH:mm:ss')}"></span></p>
+    <p>Bitiş Saati: <span th:text="${#temporals.format(todayOvertimeRecord.endTime, 'HH:mm:ss')}"></span></p>
+    <p>Pasif Süre: <span th:text="${@screenListenerManager.formatDuration(todayOvertimeRecord.passiveDuration)}"></span></p>
+    <p>Aktif Süre: <span th:text="${@screenListenerManager.formatDuration(todayOvertimeRecord.activeDuration)}"></span></p>
+</div>
+<div th:if="${todayOvertimeRecord == null}">
+    <p>Bugün için bir mesai saati kaydı bulunamadı.</p>
+</div>
+
+<h2>Tüm Çalışma Saati Kayıtları</h2>
+<ul>
+    <li th:each="record : ${allWorkHourRecords}">
+        <span th:text="${#temporals.format(record.date, 'yyyy-MM-dd')}"></span> -
+        Başlama Saati: <span th:text="${#temporals.format(record.startTime, 'HH:mm:ss')}"></span> -
+        Bitiş Saati: <span th:text="${#temporals.format(record.endTime, 'HH:mm:ss')}"></span> -
+        Pasif Süre: <span th:text="${@screenListenerManager.formatDuration(record.passiveDuration)}"></span> -
+        Aktif Süre: <span th:text="${@screenListenerManager.formatDuration(record.activeDuration)}"></span>
+    </li>
+</ul>
+
+<h2>Tüm Mesai Saati Kayıtları</h2>
+<ul>
+    <li th:each="record : ${allOvertimeRecords}">
+        <span th:text="${#temporals.format(record.date, 'yyyy-MM-dd')}"></span> -
+        Başlama Saati: <span th:text="${#temporals.format(record.startTime, 'HH:mm:ss')}"></span> -
+        Bitiş Saati: <span th:text="${#temporals.format(record.endTime, 'HH:mm:ss')}"></span> -
+        Pasif Süre: <span th:text="${@screenListenerManager.formatDuration(record.passiveDuration)}"></span> -
+        Aktif Süre: <span th:text="${@screenListenerManager.formatDuration(record.activeDuration)}"></span>
+    </li>
+</ul>
+</body>
+</html>
+
